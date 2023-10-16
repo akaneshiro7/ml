@@ -4,23 +4,24 @@ from scipy.stats import multivariate_normal
 
 import csv
 
-# Given parameters
-m01 = [3, 0]  # Flattened to 1D
+m01 = [3, 0] 
 C01 = [[2, 0], [0, 1]]
-m02 = [0, 3]  # Flattened to 1D
+m02 = [0, 3]  
 C02 = [[1, 0], [0, 2]]
-m1 = [2, 2]   # Flattened to 1D
+m1 = [2, 2]   
 C1 = [[1, 0], [0, 1]]
 w1 = 0.65
 w2 = 0.35
+
+weight1 = weight2 = 0.5
 n_samples = 10000
 
 np.random.seed(0)
 
-# Generate samples
-samples_L01 = multivariate_normal.rvs(mean=m01, cov=C01, size=int(n_samples * w1 * 0.5))
-samples_L02 = multivariate_normal.rvs(mean=m02, cov=C02, size=int(n_samples * w1 * 0.5))
+samples_L01 = multivariate_normal.rvs(mean=m01, cov=C01, size=int(n_samples * w1 * weight2))
+samples_L02 = multivariate_normal.rvs(mean=m02, cov=C02, size=int(n_samples * w1 * weight1))
 samples_L0 = np.concatenate((samples_L01, samples_L02))
+
 samples_L1 = multivariate_normal.rvs(mean=m1, cov=C1, size=int(n_samples * w2))
 
 with open('samples_L0.csv', 'w', newline='') as csvfile:
