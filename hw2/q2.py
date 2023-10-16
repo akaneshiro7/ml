@@ -5,6 +5,7 @@ import matplotlib.lines as mlines
 import seaborn as sns
 from scipy.stats import multivariate_normal
 
+# Given Values
 m1 = [0,0,0]
 m2 = [2,0,0]
 m3 = [1,np.sqrt(3),0]
@@ -25,6 +26,7 @@ np.random.seed(0)
 
 n_samples = 10_000
 
+# Generate Samples
 samples_L1 = multivariate_normal.rvs(mean=m1, cov=CO1, size=int(n_samples * w1))
 samples_L2 = multivariate_normal.rvs(mean=m2, cov=CO2, size=int(n_samples * w2))
 samples_L31 = multivariate_normal.rvs(mean=m3, cov=CO3, size=int(n_samples * w3 * weight1))
@@ -32,6 +34,7 @@ samples_L32 = multivariate_normal.rvs(mean=m4, cov=CO4, size=int(n_samples * w3 
 
 samples_L3 = np.concatenate((samples_L31, samples_L32))
 
+# Plot samples
 fig = plt.figure(figsize=(10, 7))
 ax = fig.add_subplot(111, projection='3d')
 
@@ -58,10 +61,12 @@ all_labels = np.concatenate((labels_L1, labels_L2, labels_L3))
 df = pd.DataFrame(all_samples, columns=['X', 'Y', 'Z'])
 df['Label'] = all_labels
 
+# Write to CSV
 df.to_csv('question_2.csv', index=False)
 
 # Part 2
 
+# Bayesian classifier 
 def bayes_classifier(row):
     x = row[["X", "Y", "Z"]].to_numpy()
 
@@ -73,6 +78,7 @@ def bayes_classifier(row):
 
 df['Decision'] = df.apply(bayes_classifier, axis=1)
 
+# Create Confusion Matrix
 num_L1 = (df['Label'] == "L1").sum()
 num_L2 = (df['Label'] == "L2").sum()
 num_L3 = (df['Label'] == "L3").sum()
@@ -91,6 +97,7 @@ L33 = ((df['Label'] == "L3") & (df['Decision'] == "L3")).sum() / num_L3
 
 confusion_matrix = [[L11, L12, L13], [L21, L22, L23], [L31, L32, L33]]
 
+# Plot confusion matrix
 plt.figure(figsize=(10, 7))
 sns.set(font_scale=1.2)
 sns.heatmap(confusion_matrix, annot=True, cmap="Blues", 
@@ -135,6 +142,7 @@ plt.show()
 loss_10 = np.array([[0, 1, 10], [1, 0, 10], [1, 1, 0]])
 loss_100 = np.array([[0, 1, 100], [1, 0, 100], [1, 1, 0]])
 
+# Bayesian classifier with weighted losses
 def bayes_classifier_with_loss(row, loss):
     x = row[["X", "Y", "Z"]].to_numpy()
     p_L1 = w1 * multivariate_normal.pdf(x, m1, CO1)
@@ -234,6 +242,7 @@ ax.legend()
 
 plt.show()
 
+# Compute risk associated with each Decision
 def compute_risks(row, loss):
     x = row[["X", "Y", "Z"]].to_numpy()
 
