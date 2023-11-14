@@ -5,23 +5,29 @@ from scipy.special import expit
 
 np.random.seed(0)
 
+# likelihood function
 def logistic_function(theta, X):
     return expit(np.dot(X, theta))
 
+# Neg log likelihood
 def negative_log_likelihood(theta, X, y):
     h = logistic_function(theta, X)
     return -np.sum(y * np.log(h) + (1 - y) * np.log(1 - h))
 
+# classify for likelihood
 def classify(theta, X):
     probabilities = logistic_function(theta, X)
     return (probabilities >= 0.5).astype(int)
 
+# qudratic likelihood
 def logistic_quadratic_function(theta, X):
     return expit(np.dot(X, theta))
 
+# neg log quadratic likelihood
 def negative_log_likelihood_quadratic(theta, X, y):
     h = logistic_quadratic_function(theta, X)
     return -np.sum(y * np.log(h) + (1 - y) * np.log(1 - h))
+
 
 def add_quadratic_terms(X):
     quadratic_terms = X**2
@@ -32,6 +38,7 @@ for f in ['d_100_train.csv', 'd_1000_train.csv', 'd_10000_train.csv']:
     train_data = pd.read_csv(f'hw3/q1/{f}')
     validate_data = pd.read_csv('hw3/q1/d_20000_validate.csv')
 
+    # Make labels ints
     train_data['Label'] = train_data['Label'].map({'L0': 0, 'L1': 1})
     validate_data['Label'] = validate_data['Label'].map({'L0': 0, 'L1': 1})
 
@@ -41,37 +48,44 @@ for f in ['d_100_train.csv', 'd_1000_train.csv', 'd_10000_train.csv']:
     X_validate = validate_data[['X', 'Y']]
     y_validate = validate_data['Label']
 
-
     X_train_with_intercept = np.hstack((np.ones((X_train.shape[0], 1)), X_train))
     X_validate_with_intercept = np.hstack((np.ones((X_validate.shape[0], 1)), X_validate))
 
+    # initialized thetsas
     initial_theta = np.zeros(X_train_with_intercept.shape[1])
 
+    # minimize neg log likelihood function
     result = minimize(negative_log_likelihood, initial_theta, args=(X_train_with_intercept, y_train))
 
+    # Get optimal theta
     theta_optimized = result.x
 
-
+    # Use optimal theta to classify validation set
     y_pred_validate = classify(theta_optimized, X_validate_with_intercept)
 
+    # Get error count
     error_count = np.sum(y_pred_validate != y_validate)
     total_samples = len(y_validate)
     probability_of_error = error_count / total_samples
 
     print(f"Probability of Error Linear: {probability_of_error}")
 
-
+    # Preprocess for quadratic function
     X_train_quadratic = add_quadratic_terms(X_train)
     X_validate_quadratic = add_quadratic_terms(X_validate)
 
     initial_theta_quadratic = np.zeros(X_train_quadratic.shape[1])
 
+    # Minimize neg log quadratic function
     result_quadratic = minimize(negative_log_likelihood_quadratic, initial_theta_quadratic, args=(X_train_quadratic, y_train))
 
+    # Get optimal theat
     theta_optimized_quadratic = result_quadratic.x
 
+    # Use optimal theta to classify using validation
     y_pred_validate_quadratic = classify(theta_optimized_quadratic, X_validate_quadratic)
 
+    # Caculate Error Rate
     error_count_quadratic = np.sum(y_pred_validate_quadratic != y_validate)
     probability_of_error_quadratic = error_count_quadratic / total_samples
 

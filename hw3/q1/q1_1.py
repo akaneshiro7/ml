@@ -17,13 +17,16 @@ c1 = [[2, 0], [0, 2]]
 
 d_20K = pd.read_csv('hw3/q1/d_20000_validate.csv')
 
+# Calculated Optimal
 theoretically_optimal_gamma = 1.5
+# Gamma range
 gammas = np.concatenate([np.array([0, 0.01, 0.1, 0.25]), np.arange(0.5, 1.4, 0.01), np.array([1.5]), np.arange(1.4, 5, 0.01),np.arange(5, 100, 1), np.array([1000, 10000, float("inf")])])
 
 # True Positive rate, False Postive rate
 tpr = []
 fpr = []
 
+# Classification function
 def classify(x, y, gamma):
     L01 = multivariate_normal.pdf(np.array([x, y]).T, mean=m01, cov=c01)
     L02 = multivariate_normal.pdf(np.array([x, y]).T, mean=m02, cov=c02)
@@ -32,15 +35,18 @@ def classify(x, y, gamma):
     
     return (L1 / L0) > gamma 
 
+# Classify based on gammas
 for gamma in gammas:
     d_20K['Decision: g= ' + str(gamma)] = classify(d_20K['X'], d_20K['Y'], gamma) 
 
+# Calculate false and true postiive rates
 for gamma in gammas:
     true_positives = d_20K[(d_20K['Label'] == 'L1') & (d_20K['Decision: g= ' + str(gamma)] == True)].shape[0] / len(d_20K[d_20K['Label'] == 'L1'])
     false_positives = d_20K[(d_20K['Label'] != 'L1') & (d_20K['Decision: g= ' + str(gamma)] == True)].shape[0] / len(d_20K[d_20K['Label'] != 'L1'])
     tpr.append(true_positives)
     fpr.append(false_positives)
 
+# Plot
 plt.figure(figsize=(10, 7))
 plt.plot(fpr, tpr, linestyle='-', color='b')
 plt.plot([0, 1], [0, 1], linestyle='--', color='k')

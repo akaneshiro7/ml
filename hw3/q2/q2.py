@@ -8,17 +8,20 @@ measurement_noise_std = 0.3
 sigma_x = sigma_y = 0.25
 vehicle_true_position = np.random.rand(2) * 2 - 1  
 
+# Generate Landmark
 def generate_landmarks(K):
     angles = np.linspace(0, 2 * np.pi, K, endpoint=False)
     landmarks = np.vstack((np.cos(angles), np.sin(angles))).T
     return landmarks
 
+# Generate Measurement
 def generate_measurements(landmarks, vehicle_position):
     distances = np.linalg.norm(landmarks - vehicle_position, axis=1)
     measurements = distances + np.random.randn(*distances.shape) * measurement_noise_std
     measurements = np.maximum(measurements, 0) 
     return measurements
 
+# MAP objective function
 def map_objective_function(x, y, landmarks, measurements):
     likelihood = np.sum([(r - np.hypot(x - lx, y - ly))**2 
                          for (lx, ly), r in zip(landmarks, measurements)])
