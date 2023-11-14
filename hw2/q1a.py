@@ -87,3 +87,4 @@ plt.legend()
 
 plt.show()
 
+print(p_error)

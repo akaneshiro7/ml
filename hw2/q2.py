@@ -41,6 +41,7 @@ ax = fig.add_subplot(111, projection='3d')
 ax.scatter(samples_L1[:, 0], samples_L1[:, 1], samples_L1[:, 2], alpha=0.2, label='L1')
 ax.scatter(samples_L2[:, 0], samples_L2[:, 1], samples_L2[:, 2], alpha=0.2, label='L2')
 ax.scatter(samples_L3[:, 0], samples_L3[:, 1], samples_L3[:, 2], alpha=0.2, label='L3')
+ax.set_title('Generated Sample Data')
 
 ax.set_xlabel('X')
 ax.set_ylabel('Y')
@@ -220,6 +221,7 @@ labels = ['L1', 'L2', 'L3']
 for label, color in zip(labels, colors):
     subset = df[df['Loss Decision: 10'] == label]
     ax.scatter(subset['X'], subset['Y'], subset['Z'], label=label, s=50, c=color)
+ax.set_title('Decisions with Loss 10')
 
 ax.set_xlabel('X')
 ax.set_ylabel('Y')
@@ -234,6 +236,7 @@ ax = fig.add_subplot(111, projection='3d')
 for label, color in zip(labels, colors):
     subset = df[df['Loss Decision: 100'] == label]
     ax.scatter(subset['X'], subset['Y'], subset['Z'], label=label, s=50, c=color)
+ax.set_title('Decisions with Loss 100')
 
 ax.set_xlabel('X')
 ax.set_ylabel('Y')
