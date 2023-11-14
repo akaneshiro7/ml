@@ -1,21 +1,20 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# Read the CSV file into a DataFrame
-df = pd.read_csv('./hw3/q1/d_20000_validate.csv')
+data_files = ["d_100_train.csv", "d_1000_train.csv", "d_10000_train.csv", "d_20000_validate.csv"]
 
-# Separate data for labels L0 and L1
-l0_data = df[df['Label'] == 'L0']
-l1_data = df[df['Label'] == 'L1']
+for f in data_files:
+    df = pd.read_csv(f'hw3/q1/{f}')
 
-# Plot the points with different colors for L0 and L1
-plt.scatter(l0_data['X'], l0_data['Y'], color='green', label='L0')
-plt.scatter(l1_data['X'], l1_data['Y'], color='red', label='L1')
+    l0_data = df[df['Label'] == 'L0']
+    l1_data = df[df['Label'] == 'L1']
 
-# Add labels and legend
-plt.xlabel('X')
-plt.ylabel('Y')
-plt.legend()
+    plt.scatter(l0_data['X'], l0_data['Y'], color='green', label='L0')
+    plt.scatter(l1_data['X'], l1_data['Y'], color='red', label='L1')
 
-# Show the plot
-plt.show()
+    plt.xlabel('X')
+    plt.ylabel('Y')
+    plt.legend()
+
+    plt.title(f"Plot of {f}")
+    plt.show()

@@ -6,7 +6,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import multivariate_normal
 
-train_data = pd.read_csv('hw3/q1/d_10000_train.csv')
+np.random.seed(0)
+
+train_data = pd.read_csv('hw3/q1/d_100_train.csv')
 validation_data = pd.read_csv('hw3/q1/d_20000_validate.csv')
 
 prior_L0 =len(train_data[train_data['Label'] == 'L0']) / len(train_data)
@@ -41,10 +43,6 @@ def classify(x, y, gamma):
     
     return (L1 / L0) > gamma 
 
-for gamma in gammas:
-    train_data['Decision: g= ' + str(gamma)] = classify(train_data['X'], train_data['Y'], gamma) 
-
-
 gammas = np.concatenate([np.array([0, 0.01, 0.1, 0.25]), np.arange(0.5, 1.4, 0.01), np.array([1.5]), np.arange(1.4, 5, 0.01),np.arange(5, 100, 1), np.array([1000, 10000, float("inf")])])
 
 for gamma in gammas:
@@ -77,4 +75,4 @@ plt.scatter(optimal_fpr, optimal_tpr, color="red", marker="x", s=100, label=f"Th
 plt.legend()
 plt.show()
 
-print(p_error)
+print(f"P(error) = {p_error}")

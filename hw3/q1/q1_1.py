@@ -58,4 +58,4 @@ plt.scatter(optimal_fpr, optimal_tpr, color="red", marker="x", s=100, label=f"Th
 plt.legend()
 plt.show()
 
-print(p_error)
+print(f"Min_p_error = {p_error}")
