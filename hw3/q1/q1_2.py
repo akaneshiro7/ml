@@ -19,22 +19,72 @@ for f in ['d_100_train.csv', 'd_1000_train.csv', 'd_10000_train.csv']:
     prior_L1 =len(train_data[train_data['Label'] == 'L1']) / len(train_data)
 
     # Preprocess Data
-    data_L0 = train_data[train_data['Label'] == 'L0'][['X', 'Y']]
+    data_L0 = train_data[train_data['Label'] == 'L0'][['X', 'Y']].values
     data_L1 = train_data[train_data['Label'] == 'L1'][['X', 'Y']]
 
-    # Get mean, cov, weight estimates
-    gmm_L0 = GaussianMixture(n_components=2, covariance_type='full')
-    gmm_L0.fit(data_L0)
 
-    gnb_L1 = GaussianNB()
-    gnb_L1.fit(data_L1, np.zeros(len(data_L1)))  
+    # Get random initial mean, covariances, and weights
+    def initialize_parameters(data):
+        n, d = data.shape
+        means = data[np.random.choice(n, 2, replace=False)]
+        covariances = np.array([np.cov(data, rowvar=False)] * 2)
+        weights = np.array([0.5, 0.5])
+        return means, covariances, weights
 
-    means_L0 = gmm_L0.means_
-    covariances_L0 = gmm_L0.covariances_
-    weights_L0 = gmm_L0.weights_
+    # Exxpectation Step
+    def expectation(data, means, covariances, weights):
+        n, d = data.shape
+        k = len(weights)
+        responsibilities = np.zeros((n, k))
+        
+        for i in range(k):
+            distribution = multivariate_normal(mean=means[i], cov=covariances[i])
+            responsibilities[:, i] = weights[i] * distribution.pdf(data)
+        
+        responsibilities_sum = np.sum(responsibilities, axis=1)[:, np.newaxis]
+        responsibilities /= responsibilities_sum
+        
+        return responsibilities
 
-    mean_L1 = gnb_L1.theta_[0]
-    variance_L1 = gnb_L1.var_[0]
+    # Maximization Step
+    def maximization(data, responsibilities):
+        n, d = data.shape
+        k = responsibilities.shape[1]
+        
+        nk = np.sum(responsibilities, axis=0)
+        weights = nk / n
+        means = np.dot(responsibilities.T, data) / nk[:, np.newaxis]
+        covariances = np.zeros((k, d, d))
+        
+        for i in range(k):
+            diff = data - means[i]
+            covariances[i] = np.dot(responsibilities[:, i] * diff.T, diff) / nk[i]
+        
+        return means, covariances, weights
+
+    # Get Estimated mean, covariances, weights for gaussian mixture of 2 components.
+    def gmm(data, n_iter=100):
+        means, covariances, weights = initialize_parameters(data)
+        
+        for _ in range(n_iter):
+            responsibilities = expectation(data, means, covariances, weights)
+            means, covariances, weights = maximization(data, responsibilities)
+        
+        return means, covariances, weights
+    
+
+    means_L0, covariances_L0, weights_L0 = gmm(data_L0)
+
+    mean_L1 = data_L1.mean()
+    variance_L1 = data_L1.var()
+
+    # for i in range(2):
+    #     print(f"Mean L0{i}: {means_L0[i]}")
+    #     print(f"Covariance L0{i}: {covariances_L0[i]}")
+    #     print(f"Weights L0{i}: {weights_L0[i]}")
+
+    # print(f"Mean L1: {mean_L1.X, mean_L1.Y}")
+    # print(f"Covariance L1: {variance_L1.X, variance_L1.Y}")
 
     # Calculate TPR and FPR
     tpr = []
